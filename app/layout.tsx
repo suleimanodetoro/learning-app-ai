@@ -1,8 +1,10 @@
+import { cn } from '@/lib/utils'
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Lexend } from 'next/font/google'
+import Navbar from '@/components/Navbar'
 
-const inter = Inter({ subsets: ['latin'] })
+const lexend = Lexend({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'Learning Journey',
@@ -16,7 +18,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      {/* using shadcn styling tools, & lexend style from next font  */}
+      <body className={cn(
+        lexend.className,
+        'antialiased min-h-screen pt-16' //pt-16 will be for navbar
+      )}>
+        <Navbar/>
+        {children}
+      </body>
     </html>
   )
 }
