@@ -3,6 +3,7 @@ import Link from "next/link";
 import SignInButton from "./SignInButton";
 import { getAuthSession } from "@/lib/auth";
 import UserAccountNav from "./UserAccountNav";
+import { ThemeToggle } from "./ThemeToggle";
 
 type Props = {};
 
@@ -41,6 +42,8 @@ const Navbar = async (props: Props) => {
               </Link>
             </>
           )}
+          {/* Theme (Dark/Light) toggle */}
+          <ThemeToggle className="mr-3"/>
           {/* Only render sign in button if user is not signed in */}
           <div className="flex items-center">
             {session?.user ? (
