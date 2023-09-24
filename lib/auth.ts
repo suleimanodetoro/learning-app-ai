@@ -21,7 +21,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-export const authOption: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
@@ -55,10 +55,10 @@ export const authOption: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET as string,
     adapter: PrismaAdapter(prisma),
-    provider: [
+    providers: [
         GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         })
 
     ]
