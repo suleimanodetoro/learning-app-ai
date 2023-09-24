@@ -33,14 +33,21 @@ const Navbar = async (props: Props) => {
               </Link>
 
               {/* Setting page link */}
-              <Link href={"/settings"} className="mr-3 hover:-translate-y-[2px]">
+              <Link
+                href={"/settings"}
+                className="mr-3 hover:-translate-y-[2px]"
+              >
                 Settings
               </Link>
             </>
           )}
           {/* Only render sign in button if user is not signed in */}
           <div className="flex items-center">
-            {session?.user ? <UserAccountNav user={session.user}/> : <SignInButton />}
+            {session?.user ? (
+              <UserAccountNav user={session.user} />
+            ) : (
+              <SignInButton />
+            )}
           </div>
         </div>
       </div>
