@@ -59,7 +59,16 @@ const CreateCourseForm = (props: Props) => {
           <AnimatePresence>
             {form.watch("units").map((_, index) => {
               return (
-                <motion.div key={index} initial={{opacity:0,height:0}} animate={{opacity:1, height:"auto"}} exit={{opacity:0, height:0}}>
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{
+                    opacity: { duration: 0.2 },
+                    height: { duration: 0.2 },
+                  }}
+                >
                   <FormField
                     key={index}
                     control={form.control}
@@ -117,6 +126,9 @@ const CreateCourseForm = (props: Props) => {
             </div>
             <Separator className="flex-[1]" />
           </div>
+          <Button type="submit" className="w-full mt-8" size={"lg"}>
+            Lets Go !
+          </Button>
         </form>
       </Form>
     </div>
