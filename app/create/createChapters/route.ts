@@ -1,10 +1,13 @@
 import { strict_output } from "@/lib/gpt";
+import { getUnsplashImage } from "@/lib/unsplash";
 import { createChapterSchema } from "@/validators/course";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
 export async function POST(req: Request, res: Response) {
   // get the body of the post request
+  let course_image;
+  
   try {
     const body = await req.json();
     const { title, units } = createChapterSchema.parse(body);
@@ -15,30 +18,45 @@ export async function POST(req: Request, res: Response) {
         youtube_search_query: string;
         chapter_title: string;
       };
-
     };
     let output_units: outputUnits = await strict_output(
-        "You are an AI capable of curating course content, coming up with relevant chapter titles, and finding relevant youtube videos for each chapter",
-        new Array(units.length).fill(
-          `It is your job to create a course about ${title}. The user has requested to create chapters for each of the units. Then, for each chapter, provide a detailed youtube search query that can be used to find an informative educationalvideo for each chapter. Each query should give an educational informative course in youtube.`
-        ),
+      "You are an AI capable of curating course content, coming up with relevant chapter titles, and finding relevant youtube videos for each chapter",
+      new Array(units.length).fill(
+        `It is your job to create a course about ${title}. The user has requested to create chapters for each of the units. Then, for each chapter, provide a detailed youtube search query that can be used to find an informative educationalvideo for each chapter. Each query should give an educational informative course in youtube.`
+      ),
+      {
+        title: "title of the unit",
+        chapters:
+          "an array of chapters, each chapter should have a youtube_search_query and a chapter_title key in the JSON object",
+      }
+    );
+
+    //   ai image prompt to pass to unsplash
+    const imageSearchTerm = await strict_output(
+        "you are an AI capable of finding the most relevant image for a course",
+        `Please provide a good image search term for the title of a course about ${title}. This search term will be fed into the unsplash API, so make sure it is a good search term that will return good results`,
         {
-          title: "title of the unit",
-          chapters:
-            "an array of chapters, each chapter should have a youtube_search_query and a chapter_title key in the JSON object",
+          image_search_term: "a good search term for the title of the course",
         }
       );
+      console.log("The search term given to unsplash is ",imageSearchTerm.image_search_term);
+      
 
-    console.log(output_units);
-    return NextResponse.json(output_units);
+      course_image = await getUnsplashImage(
+        imageSearchTerm.image_search_term
+      );
+
     
-
-  } catch (error) {
+    return NextResponse.json({output_units, imageSearchTerm});
+  } catch (error) {    
     if (error instanceof ZodError) {
       return new NextResponse(
-        "invalid body, does not conform to schema specified",
+        "Invalid body, does not conform to schema specified",
         { status: 400 }
       );
+    } else {
+      // Handle other types of errors here, if needed
+      return new NextResponse("An error occurred. This might be due to incorrect api request handling, please check.", { status: 500 });
     }
   }
 }
