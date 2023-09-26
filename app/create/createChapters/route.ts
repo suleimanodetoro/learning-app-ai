@@ -83,7 +83,7 @@ export async function POST(req: Request, res: Response) {
     //     },
     //   });
 
-    return NextResponse.json({ course_id: course.id});
+    return NextResponse.json({ course_id: course.id });
   } catch (error) {
     if (error instanceof ZodError) {
       return new NextResponse(
