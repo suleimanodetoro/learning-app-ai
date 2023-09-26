@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/db";
 import { strict_output } from "@/lib/gpt";
 import { getUnsplashImage } from "@/lib/unsplash";
 import { createChapterSchema } from "@/validators/course";
@@ -7,7 +8,7 @@ import { ZodError } from "zod";
 export async function POST(req: Request, res: Response) {
   // get the body of the post request
   let course_image;
-  
+
   try {
     const body = await req.json();
     const { title, units } = createChapterSchema.parse(body);
@@ -17,8 +18,8 @@ export async function POST(req: Request, res: Response) {
       chapters: {
         youtube_search_query: string;
         chapter_title: string;
-      };
-    };
+      }[];
+    }[];
     let output_units: outputUnits = await strict_output(
       "You are an AI capable of curating course content, coming up with relevant chapter titles, and finding relevant youtube videos for each chapter",
       new Array(units.length).fill(
@@ -33,22 +34,57 @@ export async function POST(req: Request, res: Response) {
 
     //   ai image prompt to pass to unsplash
     const imageSearchTerm = await strict_output(
-        "you are an AI capable of finding the most relevant image for a course",
-        `Please provide a good image search term for the title of a course about ${title}. This search term will be fed into the unsplash API, so make sure it is a good search term that will return good results`,
-        {
-          image_search_term: "a good search term for the title of the course",
-        }
-      );
-      console.log("The search term given to unsplash is ",imageSearchTerm.image_search_term);
-      
+      "you are an AI capable of finding the most relevant image for a course",
+      `Please provide a good image search term for the title of a course about ${title}. This search term will be fed into the unsplash API, so make sure it is a good search term that will return good results`,
+      {
+        image_search_term: "a good search term for the title of the course",
+      }
+    );
+    console.log(
+      "The search term given to unsplash is ",
+      imageSearchTerm.image_search_term
+    );
 
-      course_image = await getUnsplashImage(
-        imageSearchTerm.image_search_term
-      );
+    course_image = await getUnsplashImage(imageSearchTerm.image_search_term);
+    // store course title and image
+    const course = await prisma.course.create({
+      data: {
+        name: title,
+        image: course_image,
+      },
+    });
 
-    
-    return NextResponse.json({output_units, imageSearchTerm});
-  } catch (error) {    
+    for (const unit of output_units) {
+      const title = unit.title;
+      const prismaUnit = await prisma.unit.create({
+        data: {
+          name: title,
+          courseId: course.id,
+        },
+      });
+      await prisma.chapter.createMany({
+        data: unit.chapters.map((chapter) => {
+          return {
+            name: chapter.chapter_title,
+            youtubeSearchQuery: chapter.youtube_search_query,
+            unitId: prismaUnit.id,
+          };
+        }),
+      });
+    }
+    //   await prisma.user.update({
+    //     where: {
+    //       id: session.user.id,
+    //     },
+    //     data: {
+    //       credits: {
+    //         decrement: 1,
+    //       },
+    //     },
+    //   });
+
+    return NextResponse.json({ course_id: course.id});
+  } catch (error) {
     if (error instanceof ZodError) {
       return new NextResponse(
         "Invalid body, does not conform to schema specified",
@@ -56,7 +92,10 @@ export async function POST(req: Request, res: Response) {
       );
     } else {
       // Handle other types of errors here, if needed
-      return new NextResponse("An error occurred. This might be due to incorrect api request handling, please check.", { status: 500 });
+      return new NextResponse(
+        "An error occurred. This might be due to incorrect api request handling, please check.",
+        { status: 500 }
+      );
     }
   }
 }
