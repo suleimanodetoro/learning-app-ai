@@ -1,3 +1,5 @@
+// api/course/createChapters
+
 import { prisma } from "@/lib/db";
 import { strict_output } from "@/lib/gpt";
 import { getUnsplashImage } from "@/lib/unsplash";
