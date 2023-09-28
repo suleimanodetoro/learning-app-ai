@@ -47,7 +47,7 @@ const CoursePage = async ({params:{slug}}: Props) => {
   const prevChapter = unit.chapters[chapterIndex - 1];
 
   return (
-    <CourseSideBar course={course} />
+    <CourseSideBar course={course} currentChapterId={chapter.id} />
   )
 }
 export default CoursePage;

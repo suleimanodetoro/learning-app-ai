@@ -84,6 +84,7 @@ const ConfirmChapters = ({ course }: Props) => {
               className={buttonVariants({
                 className: "ml-4 font-semibold",
               })}
+            //   send to first chapter, and first unit in that chapter
               href={`/course/${course.id}/0/0`}
             >
               Save & Continue
