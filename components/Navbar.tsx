@@ -21,7 +21,7 @@ const Navbar = async (props: Props) => {
         </Link>
         <div className="flex items-center">
           {/* Gallery page: Show courses user has created */}
-          <Link href={"/gallert"} className="mr-3 hover:-translate-y-[2px]">
+          <Link href={"/gallery"} className="mr-3 hover:-translate-y-[2px]">
             Gallery
           </Link>
           {/* Only show create course and settings if the user is signed in */}
